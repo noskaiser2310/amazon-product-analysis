@@ -1,4 +1,18 @@
-## Cấu trúc dự án
+# Amazon Product Analysis: Rating Prediction & Recommendation System
+
+## Project Overview
+Dual machine learning system for e-commerce:
+1. Rating Prediction from review text
+2. Product Recommendation System
+
+## Team
+- Nguyễn Văn Sơn : Data Scientist
+- Nguyễn Hoàng Thắng : AI Engineer
+- Vũ Hải Đăng: Data Analyst
+- Dương Đình Hiếu : AI Engineer
+
+
+## Project structure
 ```
 
 amazon-product-analysis/
