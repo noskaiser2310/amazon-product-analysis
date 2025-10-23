@@ -1,8 +1,11 @@
+## Cấu trúc dự án
+```
+
 amazon-product-analysis/
 │
 ├── README.md                          # Project overview, setup instructions
 ├── requirements.txt                   # Python dependencies
-├── .gitignore                        # Ignore data/, models/, __pycache__
+├── .gitignore                       
 │
 ├── data/                             # Data folder (gitignored)
 │   ├── raw/
@@ -95,3 +98,4 @@ amazon-product-analysis/
     ├── train_recommender.py          # Training script
     ├── evaluate_models.py            # Evaluation script
     └── generate_predictions.py       # Batch prediction
+```
