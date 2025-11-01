@@ -11,6 +11,18 @@ Dual machine learning system for e-commerce:
 - Vũ Hải Đăng: Data Analyst
 - Dương Đình Hiếu : AI Engineer
 
+Price Prediction Tool
+Use our ML model to predict optimal pricing for products based on features.
+
+Product Name
+Wayona Type C To Lightning Cable Apple Mfi Certified 27W iPhone 14 Charger Wire Compatible With iPhone 14/13 Pro/13 Pro Max/12 Pro/11 Pro Max/X/XS/XR/8, I-Pad 9Th 2021, Airpods Pro (1.5M, Grey)
+Category
+Computers & Accessories,Accessories & Peripherals,Cables & Accessories,Cables›Lightning Cables
+Rating (1-5)
+4.1
+Number of Ratings
+1616
+Actual/Original Price (₹)
 
 ## Project structure
 ```

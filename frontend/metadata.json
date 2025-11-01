@@ -1,0 +1,5 @@
+{
+  "name": "Amazon Product Explorer",
+  "description": "A modern, visually appealing web application to browse, search, and get recommendations for Amazon products. Rebuilt from a Python-based project into a performant React SPA with a focus on excellent UI/UX.",
+  "requestFramePermissions": []
+}
