@@ -14,7 +14,7 @@ Báo cáo này trình bày quy trình xây dựng, xác thực và so sánh các
 
 **1.2. Dữ liệu và Biến số**
 
-*   **Dữ liệu sử dụng:** Bộ dữ liệu `amazon_processed.csv` (1,351 sản phẩm, 27 cột).
+*   **Dữ liệu sử dụng:** Bộ dữ liệu `../data/processed/amazon.csv.csv` (1,351 sản phẩm, 27 cột).
 *   **Biến mục tiêu (Target Variable):** `discounted_price` (Giá sau khi giảm).
 *   **Biến độc lập (Features):** Các đặc trưng số học được lựa chọn cẩn thận để tránh rò rỉ dữ liệu (data leakage).
 
