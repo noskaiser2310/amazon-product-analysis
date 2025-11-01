@@ -1,0 +1,7 @@
+{
+  "n_users": 357,
+  "n_products": 239,
+  "n_factors": 64,
+  "alpha": 0.55,
+  "tfidf_max_features": 20000
+}

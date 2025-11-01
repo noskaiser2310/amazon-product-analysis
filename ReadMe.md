@@ -23,13 +23,13 @@ amazon-product-analysis/
 │
 ├── data/                       
 │   ├── amazon_products.csv     # Raw dataset (gitignored)
-│   └── README.md              # Dataset description
+│   └── Overview.md              # Dataset description
 │
 ├── notebooks/                  
-│   ├── 01_eda.ipynb           
-│   ├── 02_rating_prediction.ipynb
-│   ├── 03_recommendation_system.ipynb
-│   └── 04_evaluation.ipynb
+│   ├── 01_data_processing.ipynb        # Data cleaning + preprocessing
+│   ├── 02_visualization.ipynb          # EDA + all visualizations  
+│   ├── 03_rating_prediction.ipynb      # Rating prediction models
+│   └── 04_recommendation_system.ipynb  # Recommendation system
 │
 ├── models/                     # Saved models (gitignored)
 │   ├── best_rating_model.pkl
@@ -46,6 +46,5 @@ amazon-product-analysis/
 │   ├── model_comparison.pdf          # Model performance comparison
 │   ├── final_report.pdf              # Final project report
 │   └── presentation.pptx             # Presentation slides
-│
 
 ```
