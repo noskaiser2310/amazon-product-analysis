@@ -12,7 +12,7 @@ const RecommendationsPage: React.FC = () => {
     const recommendations = useMemo(() => {
         if (!products.length) return [];
         if (viewed.length === 0) {
-            return getPopularProducts(20);
+            return getPopularProducts(30);
         }
 
         const viewedProducts = viewed

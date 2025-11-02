@@ -1,29 +1,30 @@
-import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import RecommendationsPage from './pages/RecommendationsPage';
-import PricePredictionPage from './pages/PricePredictionPage'; // ✅ NEW
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';  // ✅ NEW
+import ProductDetailPage from './pages/ProductDetailPage';
+import CartPage from './pages/CartPage';
+import PricePredictionPage from './pages/PricePredictionPage'; // ✅ NEW
 
-const App: React.FC = () => {
+
+function App() {
   return (
-    <HashRouter>
-      <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/product/:productId" element={<ProductDetailPage />} />
-            <Route path="/recommendations" element={<RecommendationsPage />} />
-            <Route path="/price-prediction" element={<PricePredictionPage />} /> {/* ✅ NEW */}
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </HashRouter>
+    <Router>
+      <Navbar />
+      <main className="min-h-screen">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/price-prediction" element={<PricePredictionPage />} /> {/* ✅ NEW */}
+
+          <Route path="/products" element={<ProductsPage />} />  {/* ✅ NEW ROUTE */}
+          <Route path="/product/:productId" element={<ProductDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
+        </Routes>
+      </main>
+      <Footer />
+    </Router>
   );
-};
+}
 
 export default App;

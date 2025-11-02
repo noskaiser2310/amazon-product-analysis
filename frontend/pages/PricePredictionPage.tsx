@@ -54,18 +54,6 @@ const PricePredictionPage: React.FC = () => {
           </ul>
         </div>
 
-        <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
-          <h3 className="text-lg font-bold text-slate-800 mb-3 flex items-center">
-            <i className="fas fa-lightbulb mr-2 text-amber-500"></i>
-            Tips for best results
-          </h3>
-          <ul className="space-y-2 text-gray-700 list-disc list-inside">
-            <li>Enter <strong>accurate product information</strong> for better predictions</li>
-            <li>Use <strong>specific categories</strong> (e.g., "Electronics , Laptops" instead of just "Electronics")</li>
-            <li>Ensure rating values are realistic (typically between 3.0 - 5.0)</li>
-            <li>Compare predictions with <strong>market research</strong> before applying</li>
-          </ul>
-        </div>
       </div>
     </div>
   );

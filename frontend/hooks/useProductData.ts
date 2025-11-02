@@ -22,7 +22,7 @@ export const useProductData = () => {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        const result = await fetchData<Product[]>('/products?limit=100');
+        const result = await fetchData<Product[]>('/products?limit=1200');
         
         if (result?.data) {
           setProducts(result.data);

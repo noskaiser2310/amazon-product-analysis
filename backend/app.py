@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
 from functools import wraps
-
+from typing import List, Dict, Any
 from config import config
 from data_mapper import ProductDataMapper
 from models_service import ModelsService
@@ -152,32 +152,154 @@ def get_categories():
         "timestamp": datetime.utcnow().isoformat()
     }), 200
 
-@app.route('/api/recommendations/<product_id>', methods=['GET'])
-@error_handler
-def get_recommendations(product_id):
+from joblib import load
+import numpy as np
+from scipy.sparse import csr_matrix
+import pandas as pd
+import math
+
+#
+artifacts = load(app.config['RECOMMENDATION_MODEL_PATH'])
+
+# Extract components
+user_encoder = artifacts["user_encoder"]
+product_encoder = artifacts["product_encoder"]
+U = artifacts["U"]
+V = artifacts["V"]
+content_pid2idx = artifacts["content_pid2idx"]
+content_idx2pid = artifacts["content_idx2pid"]
+content_similarity = artifacts["content_similarity"]
+pop_rank = artifacts["pop_rank"]
+
+# ✅ ADAPTED TRAINING FUNCTIONS FOR PRODUCT-BASED RECOMMENDATIONS
+
+def recommend_content_based_product(target_pid: str, k: int = 10) -> List[str]:
     """
-    Lấy sản phẩm gợi ý
+    Similar to training's recommend_content but for a product instead of user
     
-    Query parameters:
-        - count: Số lượng gợi ý (default: 5, max: 20)
+    Find products similar to target_pid
+    """
+    if target_pid not in content_pid2idx:
+        # Fallback to popularity
+        return pop_rank[:k]
+    
+    idx = content_pid2idx[target_pid]
+    scores = list(enumerate(content_similarity[idx].toarray().flatten() if hasattr(content_similarity[idx], 'toarray') else content_similarity[idx]))
+    scores.sort(key=lambda x: x[1], reverse=True)
+    
+    recs = [content_idx2pid[i] for i, _ in scores if i != idx]  # Exclude the product itself
+    return recs[:k]
+
+
+def recommend_hybrid_product(target_pids: List[str], k: int = 20, alpha: float = 0.5) -> List[str]:
+    """
+    ✅ HYBRID for PRODUCTS (not users)
+    
+    When user has products in cart, recommend similar products
+    """
+    # ✅ CONTENT-BASED: Get similar products for each cart item
+    content_candidates = {}
+    for pid in target_pids:
+        similar = recommend_content_based_product(pid, k=k*2)
+        for i, p in enumerate(similar):
+            # Give higher score to products appearing in multiple recommendations
+            content_candidates[p] = content_candidates.get(p, 0.0) + (1.0 / (i + 1))
+    
+    # ✅ COLLABORATIVE: Get popular products (since no user context)
+    # In production, you might have user interaction matrix
+    collab_candidates = {}
+    for i, p in enumerate(pop_rank[:k*2]):
+        collab_candidates[p] = (1.0 / (i + 1))
+    
+    # ✅ HYBRID SCORE: Combine content + collab
+    hybrid_scores = {}
+    for p in set(list(content_candidates.keys()) + list(collab_candidates.keys())):
+        if p not in target_pids:  # Don't recommend products already in cart
+            content_score = content_candidates.get(p, 0.0)
+            collab_score = collab_candidates.get(p, 0.0)
+            hybrid_scores[p] = alpha * content_score + (1.0 - alpha) * collab_score
+    
+    # Sort by score and return top k
+    recs = [p for p, _ in sorted(hybrid_scores.items(), key=lambda x: x[1], reverse=True)[:k]]
+    return recs
+
+
+# ✅ BACKEND ENDPOINTS - Using Training Functions
+
+@app.route('/api/recommendations-for-product/<product_id>', methods=['GET'])
+@error_handler  
+def get_product_recommendations(product_id):
+    """
+    使用训练函数进行推荐 - Use training functions!
     """
     count = request.args.get('count', 5, type=int)
     count = min(count, 20)
     
-    if not models_service:
-        return jsonify({"error": "Recommendation service not available"}), 503
+    print(f"\\n📥 GET /api/recommendations-for-product/{product_id}")
+    print(f"   count: {count}")
     
+    # ✅ Use training function directly!
+    recommendations_pids = recommend_content_based_product(product_id, k=count)
+    
+    print(f"   📤 Returned {len(recommendations_pids)} product IDs")
+    
+    # Get full product data
     all_products = data_mapper.get_all_products()
-    recommendations = models_service.get_recommendations(
-        product_id,
-        all_products,
-        count=count
-    )
+    product_map = {p['product_id']: p for p in all_products}
+    
+    recommendations = [product_map[pid] for pid in recommendations_pids if pid in product_map]
     
     return jsonify({
         "data": recommendations,
         "count": len(recommendations),
-        "timestamp": datetime.utcnow().isoformat()
+        "debug": {"method": "content_based_from_training"}
+    }), 200
+
+
+@app.route('/api/recommendations', methods=['POST'])
+@error_handler
+def get_recommendations():
+    """
+    Cart recommendations - Use training functions!
+    """
+    data = request.get_json()
+    cart_items = data.get('cart_items', [])
+    count = min(data.get('count', 20), 50)
+    
+    print(f"\\n📥 POST /api/recommendations")
+    print(f"   cart_items: {len(cart_items)}")
+    
+    all_products = data_mapper.get_all_products()
+    product_map = {p['product_id']: p for p in all_products}
+    
+    if not cart_items:
+        # Empty cart - return popularity
+        recs = pop_rank[:count]
+        recs_data = [product_map[pid] for pid in recs if pid in product_map]
+        return jsonify({
+            "data": recs_data,
+            "count": len(recs_data),
+            "debug": {"method": "popularity"}
+        }), 200
+    
+    # Extract product IDs from cart
+    product_ids = [item['product_id'] for item in cart_items]
+    
+    # ✅ Use HYBRID function from training!
+    recommendations_pids = recommend_hybrid_product(
+        target_pids=product_ids,
+        k=count,
+        alpha=0.6  # 60% content-based, 40% collab/popularity
+    )
+    
+    print(f"   📤 Returned {len(recommendations_pids)} product IDs")
+    
+    recommendations = [product_map[pid] for pid in recommendations_pids if pid in product_map]
+    
+    return jsonify({
+        "data": recommendations,
+        "count": len(recommendations),
+        "debug": {"method": "hybrid_from_training"}
     }), 200
 
 @app.route('/api/price-prediction', methods=['POST'])

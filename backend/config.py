@@ -26,8 +26,8 @@ class Config:
     CACHE_TIMEOUT = 3600  # 1 hour
     
     # Pagination
-    DEFAULT_PAGE_SIZE = 20
-    MAX_PAGE_SIZE = 100
+    DEFAULT_PAGE_SIZE = 50
+    MAX_PAGE_SIZE = 1500
 
 class DevelopmentConfig(Config):
     """Development configuration"""

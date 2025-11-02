@@ -39,7 +39,7 @@ class ProductDataMapper:
         if pd.isna(category):
             return []
         
-        category_str = str(category).strip()
+        category_str = str(category).strip('|')
         
         # Nếu đã là list/array, return as is
         if isinstance(category, list):
@@ -205,7 +205,7 @@ class ProductDataMapper:
                        min_price: Optional[float] = None,
                        max_price: Optional[float] = None,
                        min_rating: Optional[float] = None,
-                       limit: int = 100) -> List[Dict[str, Any]]:
+                       limit: int = 500) -> List[Dict[str, Any]]:
         """Lọc products theo các tiêu chí"""
         if self.df is None:
             return []
