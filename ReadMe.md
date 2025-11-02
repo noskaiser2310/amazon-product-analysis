@@ -103,7 +103,7 @@ Dự án tuân thủ một quy trình gồm bốn giai đoạn, mỗi giai đo�
 
 ---
 
-## **Ngăn xếp Công nghệ (Tech Stack)**
+## **Tech Stack**
 
 ### **Backend**
 - **Python 3.8+**: Ngôn ngữ lập trình chính
@@ -194,12 +194,37 @@ Dự án tuân thủ một quy trình gồm bốn giai đoạn, mỗi giai đo�
 
 ## **Kết quả và Đánh giá Mô hình**
 
-### **Mô hình Dự đoán Giá**
-- **Thuật toán:** Hồi quy XGBoost
-- **Chỉ số đánh giá:**
-  - **RMSE:** 1013.72
-  - **R²:** 0.9736
+### **1. Mô hình Dự đoán Giá**
 
-### **Hệ thống Gợi ý**
-- **Phương pháp:** Kết hợp (Content-based + Collaborative Filtering)
-- **Hiệu suất:** Được đo lường thông qua các chỉ số Precision@k và Recall@k.
+Để lựa chọn thuật toán tối ưu nhất cho việc dự đoán giá sản phẩm, chúng tôi đã đánh giá hiệu suất của nhiều mô hình hồi quy khác nhau. Các chỉ số đo lường bao gồm R-squared (hệ số xác định), Mean Absolute Error (MAE - Sai số tuyệt đối trung bình), và Root Mean Squared Error (RMSE - Nhiễu gốc trung bình của bình phương sai số).
+
+| Model | R-squared | MAE | RMSE |
+| :--- | :--- | :--- | :--- |
+| **XGBoost** | **0.9736** | **467.12** | **1013.72** |
+| Random Forest | 0.9601 | 500.34 | 1245.47 |
+| Linear Regression | 0.9476 | 726.34 | 1427.11 |
+| Gradient Boosting | 0.9041 | 687.36 | 1931.14 |
+| Decision Tree | 0.8851 | 732.14 | 2113.54 |
+
+**Phân tích kết quả:**
+- **XGBoost** nổi lên là mô hình có hiệu suất vượt trội nhất với chỉ số **R-squared đạt 0.9736**, cho thấy mô hình có khả năng giải thích khoảng 97.36% phương sai của giá sản phẩm.
+- Các chỉ số sai số **MAE (467.12)** và **RMSE (1013.72)** của XGBoost cũng là thấp nhất, chứng tỏ độ chính xác cao trong các dự đoán.
+- Mặc dù Random Forest cũng cho kết quả tốt, XGBoost vẫn vượt trội hơn trên mọi phương diện, khẳng định sự lựa chọn này là phù hợp nhất cho bài toán dự đoán giá của dự án.
+
+### **2. Hệ thống Gợi ý Sản phẩm**
+
+Hiệu suất của hệ thống gợi ý được đo lường bằng các chỉ số đánh giá xếp hạng, tập trung vào chất lượng của 10 sản phẩm gợi ý hàng đầu. Các chỉ số bao gồm NDCG@10 (Normalized Discounted Cumulative Gain), HitRate@10 (Tỷ lệ trúng đích) và Recall@10 (Tỷ lệ hồi tưởng).
+
+| Model | NDCG@10 | HitRate@10 | Recall@10 |
+| :--- | :--- | :--- | :--- |
+| **Content-Based** | **0.8168** | **0.86** | **0.86** |
+| Hybrid | 0.8160 | 0.86 | 0.86 |
+| Collaborative | 0.0266 | 0.04 | 0.04 |
+| Random | 0.0149 | 0.04 | 0.04 |
+| Popularity | 0.0000 | 0.00 | 0.00 |
+
+**Phân tích kết quả:**
+- Cả hai mô hình **Content-Based Filtering** và **Hybrid** đều đạt hiệu suất xuất sắc và gần như tương đương nhau.
+- Với chỉ số **HitRate@10 và Recall@10 đạt 0.86**, hệ thống có khả năng tìm thấy một sản phẩm liên quan trong top 10 gợi ý lên đến 86% thời điểm.
+- Mô hình **Content-Based** có độ lợi thế nhỏ về chỉ số **NDCG@10 (0.8168)**, một chỉ số quan trọng đo lường chất lượng xếp hạng của danh sách gợi ý, cho thấy các sản phẩm phù hợp nhất có xu hướng được xếp ở vị trí cao hơn.
+- Hiệu suất thấp của các mô hình cơ sở (Collaborative, Random, Popularity) đã chứng tỏ tính ưu việt của phương pháp tiếp cận dựa trên nội dung đối với bộ dữ liệu này.
