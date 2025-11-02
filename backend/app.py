@@ -186,13 +186,13 @@ def predict_price():
     """
     Dự đoán giá sản phẩm
     
+    ✅ FIX: Chỉ cần 3 features: actual_price, rating, rating_count
+    
     Request body:
     {
-        "product_name": str,
-        "category": str,
+        "actual_price": float,
         "rating": float (0-5),
-        "rating_count": int,
-        "actual_price": float
+        "rating_count": int
     }
     """
     if not models_service:
@@ -202,18 +202,15 @@ def predict_price():
     if not data:
         return jsonify({"error": "Request body must be JSON"}), 400
     
-    # Validate required fields
-    required_fields = ['product_name', 'category', 'rating', 'rating_count', 'actual_price']
+    required_fields = ['actual_price', 'rating', 'rating_count']
     for field in required_fields:
         if field not in data:
             return jsonify({"error": f"Missing required field: {field}"}), 400
     
     prediction = models_service.predict_price(
-        product_name=data['product_name'],
-        category=data['category'],
+        actual_price=float(data['actual_price']),
         rating=float(data['rating']),
-        rating_count=int(data['rating_count']),
-        actual_price=float(data['actual_price'])
+        rating_count=int(data['rating_count'])
     )
     
     if prediction is None:

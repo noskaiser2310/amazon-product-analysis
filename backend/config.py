@@ -19,7 +19,7 @@ class Config:
     MODELS_DIR = os.path.join(BASE_DIR, "models")
     
     # Model paths
-    PRICE_MODEL_PATH = os.path.join(MODELS_DIR, "price_prediction", "random_forest_model.joblib")
+    PRICE_MODEL_PATH = os.path.join(MODELS_DIR, "price_prediction", "xgboost_model.joblib")
     RECOMMENDATION_MODEL_PATH = os.path.join(MODELS_DIR, "recommendation", "hybrid_model.joblib")
     
     # Cache settings

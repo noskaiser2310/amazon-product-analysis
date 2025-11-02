@@ -9,11 +9,9 @@ interface PricePredictionResult {
 
 const PricePredictionCard: React.FC = () => {
   const [formData, setFormData] = useState({
-    product_name: '',
-    category: '',
+    actual_price: 0,
     rating: 4.0,
-    rating_count: 100,
-    actual_price: 0
+    rating_count: 100
   });
   
   const [prediction, setPrediction] = useState<PricePredictionResult | null>(null);
@@ -25,7 +23,7 @@ const PricePredictionCard: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'product_name' || name === 'category' ? value : Number(value)
+      [name]: name === 'actual_price' || name === 'rating_count' ? Number(value) : value
     }));
   };
 
@@ -56,11 +54,9 @@ const PricePredictionCard: React.FC = () => {
 
   const handleReset = () => {
     setFormData({
-      product_name: '',
-      category: '',
+      actual_price: 0,
       rating: 4.0,
-      rating_count: 100,
-      actual_price: 0
+      rating_count: 100
     });
     setPrediction(null);
     setError(null);
@@ -73,41 +69,28 @@ const PricePredictionCard: React.FC = () => {
         Price Prediction Tool
       </h3>
       <p className="text-gray-600 mb-6">
-        Use our ML model to predict optimal pricing for products based on features.
+        Use our ML model to predict optimal pricing based on 3 key features.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Product Name
-          </label>
-          <input
-            type="text"
-            name="product_name"
-            value={formData.product_name}
-            onChange={handleInputChange}
-            required
-            placeholder="Enter product name..."
-            className="w-full p-3 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
-          />
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Original Price (₹)
+            </label>
+            <input
+              type="number"
+              name="actual_price"
+              value={formData.actual_price}
+              onChange={handleInputChange}
+              required
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Category
-          </label>
-          <input
-            type="text"
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            required
-            placeholder="e.g., Electronics, Books, Fashion"
-            className="w-full p-3 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Rating (1-5)
@@ -139,23 +122,6 @@ const PricePredictionCard: React.FC = () => {
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
             />
           </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Actual/Original Price (₹)
-          </label>
-          <input
-            type="number"
-            name="actual_price"
-            value={formData.actual_price}
-            onChange={handleInputChange}
-            required
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-            className="w-full p-3 border border-gray-300 rounded-md focus:ring-cyan-500 focus:border-cyan-500"
-          />
         </div>
 
         <div className="flex space-x-3">
@@ -242,7 +208,7 @@ const PricePredictionCard: React.FC = () => {
                   <strong>Recommendation:</strong> Consider pricing at ₹
                   {prediction.predicted_price.toLocaleString()} (
                   {(((prediction.original_price - prediction.predicted_price) / prediction.original_price) * 100).toFixed(1)}% 
-                  lower) to optimize for market competitiveness.
+                  lower) for market competitiveness.
                 </>
               ) : (
                 <>
@@ -250,7 +216,7 @@ const PricePredictionCard: React.FC = () => {
                   <strong>Recommendation:</strong> You can increase price to ₹
                   {prediction.predicted_price.toLocaleString()} (
                   {(((prediction.predicted_price - prediction.original_price) / prediction.original_price) * 100).toFixed(1)}% 
-                  higher) based on product features.
+                  higher) based on features.
                 </>
               )}
             </p>
