@@ -20,6 +20,8 @@ Dự án này là một sáng kiến khoa học dữ liệu toàn diện, tập 
 - **Vũ Hải Đăng** - Data Analyst
 - **Dương Đình Hiếu** - AI Engineer
 
+![Task Diagram](./docs/ADY-2025-11-03-073528.png)
+
 ---
 
 ## **Phương pháp Khoa học Dữ liệu**
@@ -228,3 +230,5 @@ Hiệu suất của hệ thống gợi ý được đo lường bằng các ch�
 - Với chỉ số **HitRate@10 và Recall@10 đạt 0.86**, hệ thống có khả năng tìm thấy một sản phẩm liên quan trong top 10 gợi ý lên đến 86% thời điểm.
 - Mô hình **Content-Based** có độ lợi thế nhỏ về chỉ số **NDCG@10 (0.8168)**, một chỉ số quan trọng đo lường chất lượng xếp hạng của danh sách gợi ý, cho thấy các sản phẩm phù hợp nhất có xu hướng được xếp ở vị trí cao hơn.
 - Hiệu suất thấp của các mô hình cơ sở (Collaborative, Random, Popularity) đã chứng tỏ tính ưu việt của phương pháp tiếp cận dựa trên nội dung đối với bộ dữ liệu này.
+
+
