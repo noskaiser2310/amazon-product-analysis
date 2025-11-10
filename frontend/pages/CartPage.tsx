@@ -11,7 +11,6 @@ const CartPage: React.FC = () => {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const { fetchData } = useApi();
   
-  // ✅ Recommendations từ REAL MODEL
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [recLoading, setRecLoading] = useState(false);
   const [sortBy, setSortBy] = useState<SortBy>('recommended');
@@ -32,20 +31,15 @@ const CartPage: React.FC = () => {
     cvv: ''
   });
 
-  // ✅ FETCH REAL MODEL RECOMMENDATIONS - Thay đổi liên tục mỗi khi cart thay đổi
   useEffect(() => {
     if (cart.items.length === 0) {
       setRecommendations([]);
-      console.log("🛒 Cart empty - no recommendations");
       return;
     }
 
     const fetchRecommendations = async () => {
       setRecLoading(true);
       try {
-        console.log(`📊 Fetching recommendations for ${cart.items.length} cart items...`);
-        
-        // ✅ Gọi endpoint /api/recommendations với cart items
         const result = await fetchData('/recommendations', {
           method: 'POST',
           body: JSON.stringify({
@@ -62,19 +56,10 @@ const CartPage: React.FC = () => {
         
         if (result?.data) {
           setRecommendations(result.data);
-          setSortBy('recommended');  // Reset sort order khi fetch mới
-          console.log(`✅ Fetched ${result.data.length} recommendations using REAL MODEL`);
-          
-          // Debug: Log top 3 recommendations
-          if (result.data.length > 0) {
-            console.log("Top 3 recommendations:");
-            result.data.slice(0, 3).forEach((rec, i) => {
-              console.log(`  ${i+1}. ${rec.product_name} (₹${rec.discounted_price})`);
-            });
-          }
+          setSortBy('recommended');
         }
       } catch (error) {
-        console.error('❌ Failed to fetch recommendations:', error);
+        console.error('Failed to fetch recommendations:', error);
         setRecommendations([]);
       } finally {
         setRecLoading(false);
@@ -84,26 +69,20 @@ const CartPage: React.FC = () => {
     fetchRecommendations();
   }, [cart.items, fetchData]);
 
-  // ✅ Sorting logic
   const sortedRecommendations = useMemo(() => {
     let sorted = [...recommendations];
     
     switch (sortBy) {
       case 'price-low':
         sorted.sort((a, b) => a.discounted_price - b.discounted_price);
-        console.log("📈 Sorted: Price Low to High");
         break;
       case 'price-high':
         sorted.sort((a, b) => b.discounted_price - a.discounted_price);
-        console.log("📉 Sorted: Price High to Low");
         break;
       case 'rating':
         sorted.sort((a, b) => b.rating - a.rating);
-        console.log("⭐ Sorted: Rating (High to Low)");
         break;
-      case 'recommended':
       default:
-        console.log("🎯 Sorted: AI Recommended (Original Model Order)");
         break;
     }
     
@@ -147,9 +126,9 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Progress Bar */}
-      <div className="flex items-center justify-between max-w-2xl mx-auto">
+      <div className="flex items-center justify-between max-w-2xl mx-auto mb-8">
         {(['cart', 'shipping', 'payment'] as const).map((step, index) => (
           <React.Fragment key={step}>
             <div className={`flex items-center space-x-2 ${checkoutStep === step ? 'text-cyan-600' : 'text-gray-400'}`}>
@@ -158,19 +137,19 @@ const CartPage: React.FC = () => {
               }`}>
                 {index + 1}
               </div>
-              <span className="font-semibold capitalize">{step}</span>
+              <span className="font-semibold capitalize hidden sm:inline">{step}</span>
             </div>
-            {index < 2 && <div className="flex-1 h-1 bg-gray-200 mx-4"></div>}
+            {index < 2 && <div className="flex-1 h-1 bg-gray-200 mx-2 sm:mx-4"></div>}
           </React.Fragment>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
+        {/* Main Content - Cart/Shipping/Payment */}
         <div className="lg:col-span-2">
           {checkoutStep === 'cart' && (
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold mb-6">Shopping Cart</h2>
+              <h2 className="text-2xl font-bold mb-6">Shopping Cart ({cart.items.length} items)</h2>
               
               {cart.items.length === 0 ? (
                 <div className="text-center py-12">
@@ -183,35 +162,46 @@ const CartPage: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   {cart.items.map(item => (
-                    <div key={item.product_id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50">
-                      <img src={item.img_link} alt={item.product_name} className="w-20 h-20 object-cover rounded" />
-                      <div className="flex-grow">
-                        <h3 className="font-semibold text-slate-800">{item.product_name}</h3>
-                        <p className="text-sm text-gray-600">₹{item.price.toLocaleString()}</p>
+                    <div key={item.product_id} className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                      <Link to={`/product/${item.product_id}`} className="flex-shrink-0">
+                        <img src={item.img_link} alt={item.product_name} className="w-20 h-20 object-cover rounded hover:opacity-80 transition-opacity" />
+                      </Link>
+                      
+                      <div className="flex-grow min-w-0">
+                        <Link to={`/product/${item.product_id}`} className="hover:text-cyan-600">
+                          <h3 className="font-semibold text-slate-800 line-clamp-2">{item.product_name}</h3>
+                        </Link>
+                        <p className="text-sm text-gray-600 mt-1">₹{item.price.toLocaleString()} each</p>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                        >
-                          -
-                        </button>
-                        <span className="px-4 font-semibold">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-slate-800">₹{(item.price * item.quantity).toLocaleString()}</p>
-                        <button
-                          onClick={() => removeFromCart(item.product_id)}
-                          className="text-red-500 text-sm hover:text-red-700"
-                        >
-                          Remove
-                        </button>
+                      
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2 border rounded-lg">
+                          <button
+                            onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                            className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                            aria-label="Decrease quantity"
+                          >
+                            <i className="fas fa-minus text-xs"></i>
+                          </button>
+                          <span className="px-3 py-2 font-semibold min-w-[2rem] text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                            className="px-3 py-2 hover:bg-gray-100 transition-colors"
+                            aria-label="Increase quantity"
+                          >
+                            <i className="fas fa-plus text-xs"></i>
+                          </button>
+                        </div>
+                        
+                        <div className="text-right min-w-[5rem]">
+                          <p className="font-bold text-slate-800">₹{(item.price * item.quantity).toLocaleString()}</p>
+                          <button
+                            onClick={() => removeFromCart(item.product_id)}
+                            className="text-red-500 text-sm hover:text-red-700 transition-colors mt-1"
+                          >
+                            <i className="fas fa-trash-alt mr-1"></i>Remove
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -226,46 +216,49 @@ const CartPage: React.FC = () => {
               <div className="space-y-4">
                 <input
                   type="text"
-                  placeholder="Full Name"
+                  placeholder="Full Name *"
                   value={shippingData.name}
                   onChange={(e) => setShippingData({...shippingData, name: e.target.value})}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  required
                 />
                 <input
                   type="email"
-                  placeholder="Email"
+                  placeholder="Email *"
                   value={shippingData.email}
                   onChange={(e) => setShippingData({...shippingData, email: e.target.value})}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  required
                 />
                 <input
                   type="tel"
-                  placeholder="Phone Number"
+                  placeholder="Phone Number *"
                   value={shippingData.phone}
                   onChange={(e) => setShippingData({...shippingData, phone: e.target.value})}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  required
                 />
-                <input
-                  type="text"
-                  placeholder="Address"
+                <textarea
+                  placeholder="Address *"
                   value={shippingData.address}
                   onChange={(e) => setShippingData({...shippingData, address: e.target.value})}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 min-h-[80px]"
+                  required
                 />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <input
                     type="text"
                     placeholder="City"
                     value={shippingData.city}
                     onChange={(e) => setShippingData({...shippingData, city: e.target.value})}
-                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="text"
                     placeholder="Zipcode"
                     value={shippingData.zipcode}
                     onChange={(e) => setShippingData({...shippingData, zipcode: e.target.value})}
-                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -274,10 +267,11 @@ const CartPage: React.FC = () => {
 
           {checkoutStep === 'payment' && (
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold mb-6">Payment Details (DEMO)</h2>
+              <h2 className="text-2xl font-bold mb-4">Payment Details</h2>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                 <p className="text-sm text-amber-800">
-                  ⚠️ <strong>DEMO MODE</strong>: Use any card details
+                  <i className="fas fa-info-circle mr-2"></i>
+                  <strong>DEMO MODE</strong>: Use any card details for testing
                 </p>
               </div>
               <div className="space-y-4">
@@ -286,15 +280,15 @@ const CartPage: React.FC = () => {
                   placeholder="Cardholder Name"
                   value={paymentData.cardName}
                   onChange={(e) => setPaymentData({...paymentData, cardName: e.target.value})}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
                 <input
                   type="text"
-                  placeholder="Card Number"
+                  placeholder="Card Number (1234 5678 9012 3456)"
                   value={paymentData.cardNumber}
                   onChange={(e) => setPaymentData({...paymentData, cardNumber: e.target.value})}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
-                  maxLength="19"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  maxLength={19}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <input
@@ -302,15 +296,15 @@ const CartPage: React.FC = () => {
                     placeholder="MM/YY"
                     value={paymentData.expiryDate}
                     onChange={(e) => setPaymentData({...paymentData, expiryDate: e.target.value})}
-                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
+                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   />
                   <input
                     type="text"
                     placeholder="CVV"
                     value={paymentData.cvv}
                     onChange={(e) => setPaymentData({...paymentData, cvv: e.target.value})}
-                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500"
-                    maxLength="3"
+                    className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                    maxLength={3}
                   />
                 </div>
               </div>
@@ -320,95 +314,136 @@ const CartPage: React.FC = () => {
 
         {/* Sidebar - Order Summary + Recommendations */}
         <div className="lg:col-span-1">
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6 sticky top-24">
-            <h3 className="text-xl font-bold mb-4">Order Summary</h3>
-            <div className="space-y-2 mb-4 pb-4 border-b">
-              <div className="flex justify-between">
-                <span>Items ({cart.items.length})</span>
-                <span>₹{cart.total.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Shipping</span>
-                <span>Free</span>
-              </div>
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Tax (10%)</span>
-                <span>₹{Math.round(cart.total * 0.1).toLocaleString()}</span>
-              </div>
-            </div>
-            <div className="flex justify-between text-lg font-bold mb-6">
-              <span>Total</span>
-              <span className="text-cyan-600">₹{(cart.total * 1.1).toLocaleString()}</span>
-            </div>
-            <button
-              onClick={handleCheckout}
-              disabled={cart.items.length === 0}
-              className="w-full py-3 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-            >
-              {checkoutStep === 'cart' ? 'Proceed to Shipping' : checkoutStep === 'shipping' ? 'Proceed to Payment' : 'Complete Order'}
-            </button>
-          </div>
-
-          {/* ✅ REAL MODEL Recommendations with Sorting */}
-          {checkoutStep === 'cart' && (
-            <div className="bg-gradient-to-b from-cyan-50 to-transparent rounded-lg p-6 border border-cyan-200">
-              <h3 className="text-lg font-bold mb-4 flex items-center">
-                <i className="fas fa-brain text-cyan-600 mr-2"></i>
-                AI Recommendations ({recommendations.length})
+          {/* ✅ FIXED: Remove sticky, add better spacing */}
+          <div className="space-y-6">
+            {/* Order Summary */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center">
+                <i className="fas fa-receipt mr-2 text-cyan-600"></i>
+                Order Summary
               </h3>
-              
-              {/* Sort Controls */}
-              <div className="mb-4">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortBy)}
-                  className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 font-medium"
-                >
-                  <option value="recommended">🎯 Model Recommended</option>
-                  <option value="price-low">💰 Price: Low to High</option>
-                  <option value="price-high">💸 Price: High to Low</option>
-                  <option value="rating">⭐ Top Rated</option>
-                </select>
-              </div>
-
-              {recLoading ? (
-                <div className="h-40 flex items-center justify-center">
-                  <Spinner />
+              <div className="space-y-3 mb-4 pb-4 border-b">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Items ({cart.items.length})</span>
+                  <span className="font-semibold">₹{cart.total.toLocaleString()}</span>
                 </div>
-              ) : recommendations.length > 0 ? (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {sortedRecommendations.map((product, index) => (
-                    <Link
-                      key={product.product_id}
-                      to={`/product/${product.product_id}`}
-                      className="block p-3 rounded-lg hover:bg-white transition-all border border-transparent hover:border-cyan-300 hover:shadow-md"
-                    >
-                      <div className="flex items-start space-x-2">
-                        <img 
-                          src={product.img_link} 
-                          alt={product.product_name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                        <div className="flex-grow min-w-0">
-                          <p className="text-sm font-semibold text-slate-800 line-clamp-2">{product.product_name}</p>
-                          <div className="flex justify-between items-center mt-1 text-xs">
-                            <span className="text-cyan-600 font-bold">₹{product.discounted_price.toLocaleString()}</span>
-                            <span className="text-amber-600">⭐ {product.rating.toFixed(1)}</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="text-green-600 font-medium">Free</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Tax (10%)</span>
+                  <span className="font-medium">₹{Math.round(cart.total * 0.1).toLocaleString()}</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xl font-bold mb-6">
+                <span>Total</span>
+                <span className="text-cyan-600">₹{(cart.total * 1.1).toLocaleString()}</span>
+              </div>
+              <button
+                onClick={handleCheckout}
+                disabled={cart.items.length === 0}
+                className="w-full py-3 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all hover:shadow-lg"
+              >
+                {checkoutStep === 'cart' ? (
+                  <>
+                    <i className="fas fa-arrow-right mr-2"></i>
+                    Proceed to Shipping
+                  </>
+                ) : checkoutStep === 'shipping' ? (
+                  <>
+                    <i className="fas fa-credit-card mr-2"></i>
+                    Proceed to Payment
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-check mr-2"></i>
+                    Complete Order
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* ✅ RECOMMENDATIONS - Now fully visible */}
+            {checkoutStep === 'cart' && cart.items.length > 0 && (
+              <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-lg shadow-md p-6 border border-cyan-200">
+                <h3 className="text-lg font-bold mb-4 flex items-center">
+                  <i className="fas fa-sparkles text-cyan-600 mr-2"></i>
+                  You Might Also Like
+                  <span className="ml-2 text-sm font-normal text-gray-600">
+                    ({recommendations.length})
+                  </span>
+                </h3>
+                
+                {/* Sort Controls */}
+                <div className="mb-4">
+                  <label className="text-xs text-gray-600 mb-2 block">Sort by:</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortBy)}
+                    className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-white"
+                  >
+                    <option value="recommended">🎯 AI Recommended</option>
+                    <option value="price-low">💰 Price: Low to High</option>
+                    <option value="price-high">💸 Price: High to Low</option>
+                    <option value="rating">⭐ Top Rated</option>
+                  </select>
+                </div>
+
+                {recLoading ? (
+                  <div className="h-40 flex items-center justify-center">
+                    <Spinner />
+                  </div>
+                ) : recommendations.length > 0 ? (
+                  <div className="space-y-3">
+                    {sortedRecommendations.slice(0, 8).map((product) => (
+                      <Link
+                        key={product.product_id}
+                        to={`/product/${product.product_id}`}
+                        className="block p-3 rounded-lg bg-white hover:bg-cyan-50 transition-all border border-gray-200 hover:border-cyan-300 hover:shadow-md"
+                      >
+                        <div className="flex items-start space-x-3">
+                          <img 
+                            src={product.img_link} 
+                            alt={product.product_name}
+                            className="w-16 h-16 object-cover rounded flex-shrink-0"
+                          />
+                          <div className="flex-grow min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 line-clamp-2 mb-1">
+                              {product.product_name}
+                            </p>
+                            <div className="flex justify-between items-center">
+                              <span className="text-cyan-600 font-bold">
+                                ₹{product.discounted_price.toLocaleString()}
+                              </span>
+                              <span className="text-amber-600 text-xs">
+                                ⭐ {product.rating.toFixed(1)}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6 text-gray-500">
-                  <i className="fas fa-inbox text-2xl mb-2"></i>
-                  <p className="text-sm">No recommendations available</p>
-                </div>
-              )}
-            </div>
-          )}
+                      </Link>
+                    ))}
+                    
+                    {recommendations.length > 8 && (
+                      <Link
+                        to="/products"
+                        className="block text-center p-3 text-cyan-600 hover:text-cyan-700 font-semibold text-sm"
+                      >
+                        View All {recommendations.length} Recommendations →
+                      </Link>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <i className="fas fa-box-open text-3xl mb-3 text-gray-400"></i>
+                    <p className="text-sm">No recommendations yet</p>
+                    <p className="text-xs mt-1">Add more items to get suggestions</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

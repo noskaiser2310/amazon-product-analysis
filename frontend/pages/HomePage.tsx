@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useProductData } from '../hooks/useProductData';
-import { useCart } from '../hooks/useCart';
+import { useCart } from '../hooks/useCart';  // ✅ IMPORT useCart
 import { useApi } from '../hooks/useApi';
 import ProductCard from '../components/ProductCard';
 import Spinner from '../components/Spinner';
@@ -9,38 +9,42 @@ import { SearchIcon } from '../components/Icons';
 
 const HomePage: React.FC = () => {
   const { products, loading } = useProductData();
-  const { addToCart } = useCart();
+  const { cart } = useCart();  // ✅ GET CART STATE
   const { fetchData } = useApi();
   
-  // ✅ Recommendation sections - Real-time từ MODEL
   const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
   const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
   const [budgetProducts, setBudgetProducts] = useState<any[]>([]);
   const [categoryProducts, setCategoryProducts] = useState<{ [key: string]: any[] }>({});
-  
   const [recLoading, setRecLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ✅ REAL-TIME MODEL RECOMMENDATIONS - Auto-refresh
+  // ✅ REAL-TIME MODEL RECOMMENDATIONS - Listen to Cart Changes
   useEffect(() => {
     const fetchRecommendations = async () => {
       if (products.length === 0) return;
       
       setRecLoading(true);
       try {
-        // 1️⃣ RECOMMENDED - Sử dụng MODEL: Highest rated products
+        // ✅ 1️⃣ RECOMMENDED - Use cart items if available
         try {
           const recResult = await fetchData('/recommendations', {
             method: 'POST',
             body: JSON.stringify({
-              cart_items: [],  // Empty cart - return popular
+              cart_items: cart.items.map(item => ({  // ✅ USE CART ITEMS!
+                product_id: item.product_id,
+                product_name: item.product_name,
+                price: item.price,
+                quantity: item.quantity,
+                category_leaf: item.category_leaf
+              })),
               count: 8
             })
           });
           
           if (recResult?.data) {
             setRecommendedProducts(recResult.data.slice(0, 8));
-            console.log("✅ Fetched recommended products from MODEL");
+            console.log(`✅ Fetched ${recResult.data.length} recommended products from MODEL (cart: ${cart.items.length})`);
           }
         } catch (e) {
           console.warn("Model fetch failed for recommended, using fallback");
@@ -49,28 +53,26 @@ const HomePage: React.FC = () => {
           );
         }
 
-        // 2️⃣ TRENDING - Most reviewed products
+        // 2️⃣ TRENDING - Most reviewed
         try {
           const trendResult = await fetchData('/recommendations', {
             method: 'POST',
             body: JSON.stringify({
-              cart_items: [],
+              cart_items: [],  // Empty for trending
               count: 8
             })
           });
           
           if (trendResult?.data) {
             setTrendingProducts(trendResult.data.slice(0, 8));
-            console.log("✅ Fetched trending products from MODEL");
           }
         } catch (e) {
-          console.warn("Model fetch failed for trending, using fallback");
           setTrendingProducts(
             products.sort((a, b) => b.rating_count - a.rating_count).slice(0, 8)
           );
         }
 
-        // 3️⃣ BUDGET-FRIENDLY - Sử dụng MODEL: Cheapest + good rating
+        // 3️⃣ BUDGET-FRIENDLY
         try {
           const budgetResult = await fetchData('/recommendations', {
             method: 'POST',
@@ -81,29 +83,24 @@ const HomePage: React.FC = () => {
           });
           
           if (budgetResult?.data) {
-            // Filter lowest price từ recommendations
             const budgetFiltered = budgetResult.data
               .sort((a, b) => a.discounted_price - b.discounted_price)
               .slice(0, 8);
             setBudgetProducts(budgetFiltered);
-            console.log("✅ Fetched budget products from MODEL");
           }
         } catch (e) {
-          console.warn("Model fetch failed for budget, using fallback");
           setBudgetProducts(
             products.sort((a, b) => a.discounted_price - b.discounted_price).slice(0, 8)
           );
         }
 
-        // 4️⃣ BY CATEGORY - Category-based recommendations
+        // 4️⃣ BY CATEGORY
         const categories = [...new Set(products.map(p => p.category_leaf))].slice(0, 3);
         const categoryMap: { [key: string]: any[] } = {};
         
         for (const cat of categories) {
           try {
             const catProducts = products.filter(p => p.category_leaf === cat);
-            
-            // Sử dụng MODEL để recommend products trong category này
             const catResult = await fetchData('/recommendations', {
               method: 'POST',
               body: JSON.stringify({
@@ -130,7 +127,6 @@ const HomePage: React.FC = () => {
         }
         
         setCategoryProducts(categoryMap);
-        console.log("✅ Fetched category recommendations from MODEL");
 
       } catch (error) {
         console.error("Error fetching recommendations:", error);
@@ -145,7 +141,7 @@ const HomePage: React.FC = () => {
     const interval = setInterval(fetchRecommendations, 30000);
     
     return () => clearInterval(interval);
-  }, [products, fetchData]);
+  }, [products, cart.items, fetchData]);  // ✅ DEPEND ON cart.items!
 
   if (loading) {
     return <div className="h-screen flex items-center justify-center"><Spinner /></div>;
@@ -188,10 +184,15 @@ const HomePage: React.FC = () => {
             <h2 className="text-4xl font-bold text-slate-800 flex items-center">
               <i className="fas fa-star text-yellow-500 mr-3 text-3xl"></i>
               Recommended For You
+              {cart.items.length > 0 && (
+                <span className="ml-3 text-lg text-gray-600 font-normal">
+                  (Based on {cart.items.length} items in cart)
+                </span>
+              )}
             </h2>
             <span className="text-sm text-gray-500 font-medium">
               {recLoading && <i className="fas fa-spinner fa-spin mr-2"></i>}
-              Updated 30 seconds ago
+              Updated just now
             </span>
           </div>
           
