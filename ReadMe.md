@@ -2,7 +2,7 @@
 
 ## **Tổng quan Dự án**
 
-Dự án này là một sáng kiến khoa học dữ liệu toàn diện, tập trung vào việc phát triển và triển khai các mô hình học máy nâng cao cho phân tích thương mại điện tử. Dự án cung cấp một giải pháp kép cho dữ liệu sản phẩm của Amazon, bao gồm khả năng dự đoán giá và một hệ thống gợi ý kết hợp. Hệ thống minh họa toàn bộ quy trình khoa học dữ liệu, từ xử lý dữ liệu thô đến triển khai mô hình, đi kèm với một giao diện web tương tác để trực quan hóa và kiểm thử.
+Dự án này là một dự án khoa học dữ liệu toàn diện, tập trung vào việc phát triển và triển khai các mô hình học máy nâng cao cho phân tích thương mại điện tử. Dự án cung cấp một giải pháp kép cho dữ liệu sản phẩm của Amazon, bao gồm khả năng dự đoán giá và một hệ thống gợi ý kết hợp. Hệ thống minh họa toàn bộ quy trình khoa học dữ liệu, từ xử lý dữ liệu thô đến triển khai mô hình, đi kèm với một giao diện web tương tác để trực quan hóa và kiểm thử.
 
 **Lưu ý quan trọng:** Phần giao diện web (Flask và React) được xây dựng như một **bản demo**, nhằm mục đích trình diễn tương tác với các mô hình đã huấn luyện. Đây không phải là một ứng dụng full-stack hoàn chỉnh được sản xuất hóa.
 
@@ -26,7 +26,7 @@ Dự án này là một sáng kiến khoa học dữ liệu toàn diện, tập 
 
 ## **Phương pháp Khoa học Dữ liệu**
 
-Dự án tuân thủ một quy trình gồm bốn giai đoạn, mỗi giai đoạn tương ứng với một Jupyter Notebook và tài liệu giải thích chi tiết.
+Dự án tuân thủ một quy trình gồm bốn giai đoạn, mỗi giai đoạn tương ứng với một Jupyter Notebook và kèm tài liệu giải thích chi tiết.
 
 ### **Giai đoạn 1: Thu thập và Tiền xử lý Dữ liệu** (`01_data_processing.ipynb` & `01_data_processing.md`)
 - Thu thập dữ liệu từ nguồn gốc tại `data/raw/amazon.csv`.

@@ -1,0 +1,7 @@
+{
+  "total_products": 1351,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "reranker_model": "cross-encoder/ms-marco-MiniLM-L-12-v2",
+  "embedding_dim": 384,
+  "hybrid_alpha": 0.6
+}
