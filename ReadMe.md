@@ -26,7 +26,7 @@ Dự án này là một dự án khoa học dữ liệu toàn diện, tập trun
 
 ## **Phương pháp Khoa học Dữ liệu**
 
-Dự án tuân thủ một quy trình gồm bốn giai đoạn, mỗi giai đoạn tương ứng với một Jupyter Notebook và tài liệu giải thích chi tiết.
+Dự án tuân thủ một quy trình gồm bốn giai đoạn, mỗi giai đoạn tương ứng với một Jupyter Notebook và kèm tài liệu giải thích chi tiết.
 
 ### **Giai đoạn 1: Thu thập và Tiền xử lý Dữ liệu** (`01_data_processing.ipynb` & `01_data_processing.md`)
 - Thu thập dữ liệu từ nguồn gốc tại `data/raw/amazon.csv`.
