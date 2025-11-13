@@ -1,10 +1,25 @@
 # **Phân tích Sản phẩm Amazon: Hệ thống Dự đoán Giá và Gợi ý Sản phẩm**
 
+## **Bối cảnh**
+
+Thị trường thương mại điện tử (TMĐT) toàn cầu được dự báo sẽ vượt mốc **8.000 tỷ USD vào năm 2027**, trong khi Việt Nam ghi nhận **tốc độ tăng trưởng ấn tượng từ 25% đến 34%**.  
+Tuy nhiên, bức tranh tăng trưởng mạnh mẽ này cũng đi kèm với **mức độ cạnh tranh khốc liệt** giữa các doanh nghiệp và nền tảng bán hàng trực tuyến.
+
+Theo các thống kê gần đây:  
+- Khoảng **70% doanh nghiệp mới** trong lĩnh vực TMĐT **thất bại ngay trong năm đầu tiên hoạt động**.  
+- **Hơn 80.000 cửa hàng trực tuyến tại Việt Nam** đã phải đóng cửa chỉ trong **nửa đầu năm 2025**.  
+
+Những con số này cho thấy nhu cầu cấp thiết về **các giải pháp phân tích dữ liệu và dự đoán xu hướng thị trường** nhằm giúp doanh nghiệp **tối ưu chiến lược giá**, **nâng cao khả năng cạnh tranh**, và **tăng trải nghiệm người dùng** thông qua hệ thống gợi ý sản phẩm chính xác.
+
 ## **Tổng quan Dự án**
 
-Dự án này là một dự án khoa học dữ liệu toàn diện, tập trung vào việc phát triển và triển khai các mô hình học máy nâng cao cho phân tích thương mại điện tử. Dự án cung cấp một giải pháp kép cho dữ liệu sản phẩm của Amazon, bao gồm khả năng dự đoán giá và một hệ thống gợi ý kết hợp. Hệ thống minh họa toàn bộ quy trình khoa học dữ liệu, từ xử lý dữ liệu thô đến triển khai mô hình, đi kèm với một giao diện web tương tác để trực quan hóa và kiểm thử.
+Dự án này được xây dựng như một hệ thống khoa học dữ liệu toàn diện, tập trung vào việc phát triển và triển khai các mô hình học máy nâng cao để phục vụ phân tích dữ liệu thương mại điện tử, cụ thể là dữ liệu sản phẩm trên nền tảng Amazon.
 
-**Lưu ý quan trọng:** Phần giao diện web (Flask và React) được xây dựng như một **bản demo**, nhằm mục đích trình diễn tương tác với các mô hình đã huấn luyện. Đây không phải là một ứng dụng full-stack hoàn chỉnh được sản xuất hóa.
+Hệ thống bao gồm hai thành phần chính:
+
+1. Mô hình Dự đoán Giảm Giá (Price Prediction Model):
+
+2. Hệ thống Gợi ý Sản phẩm (Product Recommendation System):  
 
 ## **Mục tiêu Dự án**
 
